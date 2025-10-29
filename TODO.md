@@ -13,3 +13,4 @@
 - [x] Implement /api/quote endpoint
 - [x] Implement /api/search endpoint
 - [x] Implement /api/screener endpoint
+- [x] Implement stock scoring utility
