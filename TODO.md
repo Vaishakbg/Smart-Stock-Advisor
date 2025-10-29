@@ -10,3 +10,6 @@
 - [x] Build SearchBar component
 - [x] Build FilterPanel component
 - [x] Build WatchToggle component
+- [x] Implement /api/quote endpoint
+- [x] Implement /api/search endpoint
+- [x] Implement /api/screener endpoint
