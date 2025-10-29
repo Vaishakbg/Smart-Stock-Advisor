@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+coverage/
+.nyc_output/
+
+# Production builds
+.next/
+out/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment files
+.env*
+!.env.example
+
+# OS/Editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+*.log
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional FastAPI artifacts
+__pycache__/
+*.py[cod]
+
+# Misc
+package-lock.json.save
+yarn.lock.save
