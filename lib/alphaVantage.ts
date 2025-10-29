@@ -48,7 +48,20 @@ async function fetchAlpha<T extends Record<string, unknown>>(pathParams: Record<
   return data as T;
 }
 
-export async function fetchQuote(symbol: string) {
+export type QuoteSnapshot = {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  volume: number;
+  latestTradingDay?: string;
+  previousClose?: number;
+  open?: number;
+  high?: number;
+  low?: number;
+};
+
+export async function fetchQuote(symbol: string): Promise<QuoteSnapshot> {
   type GlobalQuoteResponse = {
     "Global Quote"?: Record<string, string>;
   };
@@ -60,8 +73,8 @@ export async function fetchQuote(symbol: string) {
     throw new AlphaVantageError("Quote not found", 404);
   }
 
-  return {
-    symbol: quote["01. symbol"],
+  const normalized: QuoteSnapshot = {
+    symbol: quote["01. symbol"] ?? symbol,
     price: Number(quote["05. price"] ?? 0),
     change: Number(quote["09. change"] ?? 0),
     changePercent: parseFloat((quote["10. change percent"] ?? "0").replace("%", "")),
@@ -72,6 +85,8 @@ export async function fetchQuote(symbol: string) {
     high: Number(quote["03. high"] ?? 0),
     low: Number(quote["04. low"] ?? 0)
   };
+
+  return normalized;
 }
 
 export async function searchSymbols(keywords: string) {
