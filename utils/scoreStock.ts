@@ -16,6 +16,46 @@ export type UserProfile = {
   notificationsOptIn?: boolean;
 };
 
+/**
+ * Clamp a numeric value within a range and normalize to 0-1.
+ * @param value The raw value to normalize.
+ * @param min The minimum expected boundary.
+ * @param max The maximum expected boundary.
+ * @returns A number between 0 and 1 representing the relative position within the range.
+ */
+export function normalize(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value) || !Number.isFinite(min) || !Number.isFinite(max)) {
+    return 0;
+  }
+
+  if (min === max) {
+    return 0;
+  }
+
+  const lower = Math.min(min, max);
+  const upper = Math.max(min, max);
+  const clamped = Math.min(Math.max(value, lower), upper);
+  return (clamped - lower) / (upper - lower);
+}
+
+/**
+ * Score a price-to-earnings ratio relative to the industry median.
+ * Lower ratios (up to 50% below median) receive higher scores, with diminishing credit as P/E rises.
+ * @param pe The stock's price-to-earnings ratio.
+ * @param industryMedianPE The median P/E for the stock's industry.
+ * @returns A score between 0 and 25.
+ */
+export function scoreNormalizedPE(pe: number | null | undefined, industryMedianPE: number | null | undefined): number {
+  if (!industryMedianPE || industryMedianPE <= 0 || !pe || pe <= 0) {
+    return 0;
+  }
+
+  const ratio = pe / industryMedianPE;
+  // Ratios at or below 0.5 earn full credit; ratios above 1.5 drop to zero.
+  const normalized = normalize(ratio, 0.5, 1.5);
+  return Math.round((1 - normalized) * 25);
+}
+
 export type StockScoreReason = {
   reason: string;
   impact: number;

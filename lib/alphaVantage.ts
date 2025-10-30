@@ -23,7 +23,14 @@ function getApiKey() {
   return key;
 }
 
-async function fetchAlpha<T extends Record<string, unknown>>(pathParams: Record<string, string>) {
+type FetchAlphaOptions = {
+  ttlMs?: number;
+};
+
+async function fetchAlpha<T extends Record<string, unknown>>(
+  pathParams: Record<string, string>,
+  options: FetchAlphaOptions = {}
+) {
   const apiKey = getApiKey();
   const query = new URLSearchParams({ ...pathParams, apikey: apiKey });
   const cacheKey = `alpha:${query.toString()}`;
@@ -44,7 +51,7 @@ async function fetchAlpha<T extends Record<string, unknown>>(pathParams: Record<
     throw new AlphaVantageError("Alpha Vantage rate limit exceeded", RATE_LIMIT_STATUS);
   }
 
-  apiCache.set(cacheKey, data as T);
+  apiCache.set(cacheKey, data as T, options.ttlMs);
   return data as T;
 }
 
@@ -133,6 +140,44 @@ export async function fetchOverview(symbol: string): Promise<CompanyOverview> {
     peRatio: Number(payload.PERatio ?? 0),
     dividendYield: Number(payload.DividendYield ?? 0)
   };
+}
+
+export type DailyAdjustedBar = {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  adjustedClose: number;
+  volume: number;
+};
+
+export async function fetchDailyAdjustedSeries(symbol: string): Promise<DailyAdjustedBar[]> {
+  type DailyAdjustedResponse = {
+    "Time Series (Daily)"?: Record<string, Record<string, string>>;
+  };
+
+  const payload = await fetchAlpha<DailyAdjustedResponse>(
+    { function: "TIME_SERIES_DAILY_ADJUSTED", symbol, outputsize: "compact" },
+    { ttlMs: 5 * 60 * 1000 }
+  );
+
+  const series = payload["Time Series (Daily)"];
+  if (!series) {
+    throw new AlphaVantageError("Daily series not found", 404);
+  }
+
+  return Object.entries(series)
+    .map(([date, values]) => ({
+      date,
+      open: Number(values["1. open"] ?? 0),
+      high: Number(values["2. high"] ?? 0),
+      low: Number(values["3. low"] ?? 0),
+      close: Number(values["4. close"] ?? 0),
+      adjustedClose: Number(values["5. adjusted close"] ?? values["4. close"] ?? 0),
+      volume: Number(values["6. volume"] ?? 0)
+    }))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export function handleAlphaError(res: NextApiResponse, error: unknown) {

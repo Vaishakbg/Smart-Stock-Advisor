@@ -93,6 +93,14 @@ npm run test
 | `npm run lint` | Lint the codebase |
 | `npm run test` | Execute unit/integration tests |
 
+## Manual Test Checklist
+
+- Launch dev server with `npm run dev` and confirm dashboard, screener, watchlist, and settings pages render without console errors.
+- On Settings page, adjust investment horizon, risk profile, sectors, and ensure values persist after refresh.
+- Add/remove symbols from the watchlist and verify cards reflect watch toggle state.
+- Trigger `/api/quote`, `/api/screener`, and `/api/explain` via the UI or REST client to confirm 200 responses.
+- Review PriceChart sparkline and TradingView fallback for a symbol with sparse history.
+
 ## Roadmap
 
 - Expand charting with streaming data
