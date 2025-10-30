@@ -1,4 +1,5 @@
-type RiskLevel = "conservative" | "moderate" | "aggressive";
+export type RiskLevel = "conservative" | "moderate" | "aggressive";
+export type InvestmentHorizon = "short" | "mid" | "long";
 
 export type StockSnapshot = {
   symbol: string;
@@ -10,6 +11,9 @@ export type StockSnapshot = {
 
 export type UserProfile = {
   risk: RiskLevel;
+  investmentHorizon?: InvestmentHorizon;
+  preferredSectors?: string[];
+  notificationsOptIn?: boolean;
 };
 
 export type StockScoreReason = {
